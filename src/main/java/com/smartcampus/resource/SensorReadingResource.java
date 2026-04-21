@@ -8,6 +8,7 @@ import com.smartcampus.model.SensorReading;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,12 @@ public class SensorReadingResource {
         return Response.status(Response.Status.CREATED).entity(reading).build();
     }
 
+    private Map<String, Object> buildError(String message) {
+        Map<String, Object> err = new HashMap<>();
+        err.put("error", message);
+        return err;
+    }
+
     /** GET /api/v1/sensors/{sensorId}/readings/{readingId} */
     @GET
     @Path("/{readingId}")
@@ -67,7 +74,7 @@ public class SensorReadingResource {
                 .findFirst()
                 .map(r -> Response.ok(r).build())
                 .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Reading not found: " + readingId))
+                        .entity(buildError("Reading not found: " + readingId))
                         .build());
     }
 }

@@ -8,6 +8,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -69,9 +70,9 @@ public class SensorResource {
     public Response getSensor(@PathParam("sensorId") String sensorId) {
         Sensor sensor = store.getSensors().get(sensorId);
         if (sensor == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("error", "Sensor not found: " + sensorId))
-                    .build();
+            Map<String, Object> err = new HashMap<>();
+            err.put("error", "Sensor not found: " + sensorId);
+            return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
         return Response.ok(sensor).build();
     }

@@ -7,6 +7,7 @@ import com.smartcampus.model.Room;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,9 +35,9 @@ public class RoomResource {
             room.setId("ROOM-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase());
         }
         if (room.getName() == null || room.getName().isBlank()) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error", "Room name is required."))
-                    .build();
+            Map<String, Object> err = new HashMap<>();
+            err.put("error", "Room name is required.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(err).build();
         }
         store.getRooms().put(room.getId(), room);
         return Response.status(Response.Status.CREATED).entity(room).build();
@@ -48,30 +49,21 @@ public class RoomResource {
     public Response getRoom(@PathParam("roomId") String roomId) {
         Room room = store.getRooms().get(roomId);
         if (room == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("error", "Room not found: " + roomId))
-                    .build();
+            Map<String, Object> err = new HashMap<>();
+            err.put("error", "Room not found: " + roomId);
+            return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
         return Response.ok(room).build();
     }
 
-    /**
-     * DELETE /api/v1/rooms/{roomId} — decommission a room.
-     * Business rule: cannot delete a room that still has sensors assigned.
-     * Idempotency: first DELETE on existing room -> 200 OK.
-     *              Subsequent DELETE on same (now missing) room -> 404.
-     *              So this implementation is NOT strictly idempotent per RFC 7231
-     *              because repeated calls return different status codes, although
-     *              the server state is the same after the first call.
-     */
     @DELETE
     @Path("/{roomId}")
     public Response deleteRoom(@PathParam("roomId") String roomId) {
         Room room = store.getRooms().get(roomId);
         if (room == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("error", "Room not found: " + roomId))
-                    .build();
+            Map<String, Object> err = new HashMap<>();
+            err.put("error", "Room not found: " + roomId);
+            return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
         if (!room.getSensorIds().isEmpty()) {
             throw new RoomNotEmptyException(
@@ -79,6 +71,8 @@ public class RoomResource {
                     + room.getSensorIds().size() + " sensor(s) assigned.");
         }
         store.getRooms().remove(roomId);
-        return Response.ok(Map.of("message", "Room " + roomId + " deleted successfully.")).build();
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("message", "Room " + roomId + " deleted successfully.");
+        return Response.ok(msg).build();
     }
 }
