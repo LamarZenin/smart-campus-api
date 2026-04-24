@@ -31,7 +31,7 @@ There is no database; all data is stored in memory with ConcurrentHashMap and Ar
 
 bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/smart-campus-api.git
+git clone https://github.com/LamarZenin/smart-campus-api.git
 cd smart-campus-api
 
 # 2. Build the fat JAR
